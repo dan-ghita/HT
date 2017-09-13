@@ -9,6 +9,5 @@ public class ComponentModule extends AbstractModule {
         bind(DatabaseAdapter.class).to(InMemoryHashDatabaseAdapter.class);
     }
 
-    public ComponentModule() {
-    }
+    public ComponentModule() { }
 }

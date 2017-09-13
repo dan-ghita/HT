@@ -10,6 +10,8 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collection;
 
 public class ArticleController extends Controller {
     private DatabaseAdapter databaseAdapter;
@@ -19,23 +21,28 @@ public class ArticleController extends Controller {
         this.databaseAdapter = databaseAdapter;
     }
 
+    public Result list() throws IOException {
+        final StringWriter stringWriter = new StringWriter();
+        final ObjectMapper mapper = new ObjectMapper();
+
+        Collection<Article> articles = databaseAdapter.listArticles();
+        mapper.writeValue(stringWriter, articles);
+
+        return ok(stringWriter.toString());
+    }
+
     public Result create() {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
 
-        Article article;
-
+        String uuid;
         try {
             JsonNode articleJson = mapper.readTree(request().body().asText());
 
-            System.out.printf(articleJson.get("title").toString());
-
-            article = new Article(articleJson.get("title").asText(),
+            uuid = databaseAdapter.createArticle(articleJson.get("title").asText(),
                     articleJson.get("content").asText(), articleJson.get("author").asText());
         } catch (IOException e) {
             return badRequest();
         }
-
-        String uuid = databaseAdapter.writeArticle(article);
 
         return ok(uuid);
     }
@@ -54,7 +61,9 @@ public class ArticleController extends Controller {
         return ok();
     }
 
-    public Result delete() {
-        return ok();
+    public Result delete(String id) {
+        return databaseAdapter.deleteArticle(id) ?
+                ok(Json.parse("{\"message\": \"Removed successfully\"}")) :
+                notFound(Json.parse("{\"error\": \"Article not found\"}"));
     }
 }

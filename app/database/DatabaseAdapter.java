@@ -1,8 +1,12 @@
 package database;
 
-import models.*;
+import models.Article;
+
+import java.util.Collection;
 
 public interface DatabaseAdapter {
-    String writeArticle(Article article);
+    Collection<Article> listArticles();
+    String createArticle(String title, String content, String author);
     Article readArticle(String articleId);
+    boolean deleteArticle(String articleId);
 }
