@@ -1,0 +1,7 @@
+@(article: models.Article)
+
+@main("Read Article") {
+    <h1>@article.getTitle()</h1>
+    <h1>@article.getContent()</h1>
+    <h1>@article.getAuthor()</h1>
+}
